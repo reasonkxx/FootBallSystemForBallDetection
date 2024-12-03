@@ -1,0 +1,6 @@
+# Ігнорувати всі відеофайли
+*.mp4
+*.avi
+
+# Ігнорувати папку з відео
+D:/university/KursovaWork/FootBallSystemForBallDetection/data/raw/videos
