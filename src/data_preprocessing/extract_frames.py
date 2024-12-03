@@ -3,9 +3,9 @@ import os
 
 def extract_frames(video_path, output_folder, frame_rate=1):
     # Перевіряємо, чи папка для збереження кадрів вже містить файли
-    if os.path.exists(output_folder) and len(os.listdir(output_folder)) > 0:
-        print(f"Кадри вже витягнуті в папку: {output_folder}. Пропускаємо витяг кадрів.")
-        return   
+    # if os.path.exists(output_folder) and len(os.listdir(output_folder)) > 0:
+    #     print(f"Кадри вже витягнуті в папку: {output_folder}. Пропускаємо витяг кадрів.")
+    #     return   
      
     # Відкриваємо відеофайл
     video = cv2.VideoCapture(video_path)
@@ -39,7 +39,7 @@ def extract_frames(video_path, output_folder, frame_rate=1):
 
 if __name__ == "__main__":
     # Введіть шлях до відео та папку для збереження кадрів
-    video_path = "data/raw/videos/videotest1.mp4"
+    video_path = "data/raw/videos/videotest2.mp4"
     output_folder = "data/extracted_frames"
     
     # Викликаємо функцію витягування кадрів

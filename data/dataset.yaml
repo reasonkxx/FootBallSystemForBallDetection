@@ -1,0 +1,13 @@
+train: D:/university/KursovaWork/FootBallSystemForBallDetection/data/train
+val: D:/university/KursovaWork/FootBallSystemForBallDetection/data/valid
+test: D:/university/KursovaWork/FootBallSystemForBallDetection/data/test
+
+nc: 3
+names: ['Football', 'Player', 'big']
+
+roboflow:
+  workspace: project
+  project: football-analyzer
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/project/football-analyzer/dataset/1
