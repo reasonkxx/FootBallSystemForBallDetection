@@ -1,5 +1,6 @@
 import cv2
 from ultralytics import YOLO
+from src.detection.tracker import BallTracker
 
 def load_model(model_path):
     """Завантажує натреновану модель YOLO."""
@@ -51,10 +52,43 @@ def release_resources(cap, out):
     cv2.destroyAllWindows()
     print("Ресурси успішно звільнено.")
 
+def process_frame_with_tracking(model, tracker, frame):
+    """Обробляє кадр з використанням трекера."""
+    results = detect_objects_in_frame(model, frame)
+    position = tracker.update(results)
+
+    # Обробляємо всі знайдені об'єкти
+    for result in results:
+        for box in result.boxes:
+            label = result.names[int(box.cls[0])]
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+            conf = box.conf[0]
+
+            
+            if label == "player":
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(frame, f"{label} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            elif label == "goalkeeper":
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)  
+                cv2.putText(frame, f"{label} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+            
+
+    # Якщо позиція м'яча відома, додаємо рамку червоного кольору
+    if position:
+        x1, y1, x2, y2 = position
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        cv2.putText(frame, "ball", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+    return frame
+
+
 def detect_ball_in_video(model_path, video_path, output_video_path):
     """Головна функція для виконання детекції м'яча на відео."""
     # Завантаження моделі
     model = load_model(model_path)
+
+    # Ініціалізація трекера
+    tracker = BallTracker(max_disappeared=5)
 
     # Відкриваємо відео
     cap = open_video(video_path)
@@ -73,11 +107,8 @@ def detect_ball_in_video(model_path, video_path, output_video_path):
         if not ret:
             break
 
-        # Виконуємо детекцію на поточному кадрі
-        results = detect_objects_in_frame(model, frame)
-
-        # Обробляємо результати детекції
-        frame = process_detections(frame, results)
+        # Обробляємо кадр з використанням трекера
+        frame = process_frame_with_tracking(model, tracker, frame)
 
         # Зберігаємо оброблений кадр у вихідне відео
         out.write(frame)
@@ -89,4 +120,6 @@ def detect_ball_in_video(model_path, video_path, output_video_path):
 
     # Звільняємо ресурси
     release_resources(cap, out)
+
+   
 

@@ -12,7 +12,7 @@ def train_and_test_yolov8(data_yaml_path, epochs, custom_save_dir="D:/university
     """
     print("=== Навчання та тестування моделі YOLOv8 ===")
     
-    # Завантаження попередньо натренованої моделі YOLOv8
+    # Завантаження базової моеделі YOLOv8
     model = YOLO('yolov8m.pt')
     
     # Перенавчання моделі на користувацькому наборі даних
