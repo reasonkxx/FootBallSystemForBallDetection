@@ -2,12 +2,14 @@ train: D:/university/KursovaWork/FootBallSystemForBallDetection/data/train
 val: D:/university/KursovaWork/FootBallSystemForBallDetection/data/valid
 test: D:/university/KursovaWork/FootBallSystemForBallDetection/data/test
 
-nc: 3
-names: ['Football', 'Player', 'big']
+nc: 4
+names: ['ball', 'goalkeeper', 'player', 'referee']
+
+weights: [2.0, 1.0, 1.0, 1.0] 
 
 roboflow:
-  workspace: project
-  project: football-analyzer
-  version: 1
+  workspace: roboflow-jvuqo
+  project: football-players-detection-3zvbc
+  version: 12
   license: CC BY 4.0
-  url: https://universe.roboflow.com/project/football-analyzer/dataset/1
+  url: https://universe.roboflow.com/roboflow-jvuqo/football-players-detection-3zvbc/dataset/12
