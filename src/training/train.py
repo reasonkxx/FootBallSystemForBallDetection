@@ -1,7 +1,7 @@
 import os
 from ultralytics import YOLO
 
-def train_and_test_yolov8(data_yaml_path, epochs, custom_save_dir="D:/university/KursovaWork/FootBallSystemForBallDetection/experiments/exp1/results"):
+def train_and_test_yolov8(data_yaml_path, epochs):
     """
     Навчає попередньо натреновану модель YOLOv8 на користувацьких даних і зберігає результати тестування.
 
@@ -21,26 +21,8 @@ def train_and_test_yolov8(data_yaml_path, epochs, custom_save_dir="D:/university
     # Виконуємо тестування на тестовому наборі даних
     results = model.val(data=data_yaml_path, save=True, save_json=True)
 
-    # Тестування моделі на тестовому наборі даних
-    test_results = model.predict(
-        data=data_yaml_path,
-        save=True,
-        save_txt=True,
-        save_conf=True,
-        batch=4  # Зменшений розмір батчу для тестування
-    )
-
-    # Збереження навченої моделі
-    print("=== Процес збереження моделі ===")
-    export_path = "D:/university/KursovaWork/FootBallSystemForBallDetection/models/trained_model/"
-    os.makedirs(export_path, exist_ok=True)
-    
-    # # Экспорт модели в формате torchscript
-    # model.export(format="torchscript", dynamic=True, imgsz=640, project=export_path, name="yolov8n_trained")
-    # print(f"Модель збережена за шляхом: {export_path}")
-    # print(f"Результати тестування збережено в папку: {custom_save_dir}")
-    # print("=== Навчання і тестування завершено ===") 
-    # return results, test_results
+     
+    return results
 
 if __name__ == "__main__":
     # Шлях до конфігураційного файлу YAML

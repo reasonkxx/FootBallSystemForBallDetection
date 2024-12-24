@@ -26,6 +26,8 @@ class BallTracker:
                     self.disappeared = 0
                     ball_detected = True
                     return self.last_position
+    
+    
 
         # Если мяча не обнаружено, увеличиваем счетчик исчезновений
         if not ball_detected:
@@ -36,4 +38,17 @@ class BallTracker:
                 self.last_position = None  # Сбрасываем, если мяч долго отсутствует
         return None
         
+    def is_referee(frame, x1, y1, x2, y2):
+        # Вирізаємо область рамки
+        roi = frame[y1:y2, x1:x2]
+        # Перетворюємо область у HSV
+        hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+        # Визначаємо діапазон кольорів для форми рефері (наприклад, чорний)
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([180, 255, 50])
+        # Створюємо маску для чорного кольору
+        mask = cv2.inRange(hsv_roi, lower_black, upper_black)
+        # Розраховуємо відсоток чорного кольору
+        black_ratio = np.sum(mask > 0) / (roi.shape[0] * roi.shape[1])
+        return black_ratio > 0.5  # Якщо більше 50% чорного, то це рефері
    

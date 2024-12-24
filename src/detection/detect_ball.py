@@ -1,6 +1,7 @@
 import cv2
 from ultralytics import YOLO
 from src.detection.tracker import BallTracker
+import numpy as np
 
 def load_model(model_path):
     """Завантажує натреновану модель YOLO."""
@@ -52,6 +53,22 @@ def release_resources(cap, out):
     cv2.destroyAllWindows()
     print("Ресурси успішно звільнено.")
 
+def is_referee(frame, x1, y1, x2, y2):
+    # Вирізаємо область рамки
+    roi = frame[y1:y2, x1:x2]
+    if roi.size == 0:  # Перевірка на порожній ROI
+        return False
+    # Перетворюємо область у HSV
+    hsv_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+    # Визначаємо діапазон кольорів для чорного
+    lower_black = np.array([0, 0, 0])
+    upper_black = np.array([180, 255, 80])  # Розширений діапазон
+    # Створюємо маску для чорного кольору
+    mask = cv2.inRange(hsv_roi, lower_black, upper_black)
+    # Розраховуємо відсоток чорного кольору
+    black_ratio = np.sum(mask > 0) / (roi.shape[0] * roi.shape[1])
+    return black_ratio > 0.2  # Зменшено поріг до 20%
+
 def process_frame_with_tracking(model, tracker, frame):
     """Обробляє кадр з використанням трекера."""
     results = detect_objects_in_frame(model, frame)
@@ -64,14 +81,14 @@ def process_frame_with_tracking(model, tracker, frame):
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             conf = box.conf[0]
 
-            
             if label == "player":
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, f"{label} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            elif label == "goalkeeper":
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)  
-                cv2.putText(frame, f"{label} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-            
+                if is_referee(frame, x1, y1, x2, y2):
+                    label = "referee"
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)
+                    cv2.putText(frame, f"{label} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+                else:
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(frame, f"{label} {conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     # Якщо позиція м'яча відома, додаємо рамку червоного кольору
     if position:
@@ -80,6 +97,7 @@ def process_frame_with_tracking(model, tracker, frame):
         cv2.putText(frame, "ball", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     return frame
+
 
 
 def detect_ball_in_video(model_path, video_path, output_video_path):
